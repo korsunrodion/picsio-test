@@ -4,11 +4,13 @@ import db from './services/databaseService';
 import logger from './logger';
 import { createServer } from 'http';
 import eventsRouter from './routes/events';
+import helmet from "helmet";
 
 const app = express();
 
 db.connect();
 
+app.use(helmet());
 app.use(express.json());
 
 app.use('/api/events', eventsRouter);
