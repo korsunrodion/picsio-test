@@ -28,7 +28,7 @@ class TransportService {
     logger.info(`Payload sent to ${destination.destinationName} via ${destination.transport} transport`);
   }
 
-  private static async makeDestinationConsole(destination: IDestination) {
+  private static async makeDestinationConsole(destination: IDestination, payload: Record<string, any>) {
     const { transport, destinationName } = destination;
     if (!transport.startsWith('console')) {
       throw new Error(`[Transport service] makeDestinationConsole - not a valid transport (${transport})`)
@@ -37,7 +37,8 @@ class TransportService {
     const method = transport.split('.')[1] as 'log' | 'error' | 'debug' | 'warn';
     const consoleFn = console[method];
 
-    consoleFn(`Payload sent to ${destinationName} via ${transport} transport`)
+    consoleFn(`Payload: ${JSON.stringify(payload)}`)
+    logger.info(`Payload sent to ${destinationName} via ${transport} transport`)
   }
 
   public async processIntents(intents: RoutingIntent[], payload: Record<string, any>) {
@@ -63,7 +64,7 @@ class TransportService {
         if (destination.transport.startsWith('http')) {
           await TransportService.makeDestinationRequest(destination, payload)
         } else if (destination.transport.startsWith('console')) {
-          await TransportService.makeDestinationConsole(destination);
+          await TransportService.makeDestinationConsole(destination, payload);
         }
         result[destination.destinationName] = true;
       } catch (e) {
